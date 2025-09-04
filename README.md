@@ -88,7 +88,7 @@ docker-compose down
 - Rodar apenas o container da aplicação:
 
 ```bash
-docker-compose up app
+docker-compose up backend
 ```
 
 - Acessar o shell do container:
