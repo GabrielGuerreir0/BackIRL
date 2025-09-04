@@ -1,33 +1,64 @@
-from pydantic import BaseModel
-from typing import Optional
+from pydantic import BaseModel, ConfigDict
+from typing import Optional, List
+from datetime import date
 
+# Schemas para a entidade Documento
+class DocumentoBase(BaseModel):
+    nome_arquivo: str
+    caminho_arquivo: str
+
+class DocumentoOut(DocumentoBase):
+    id: int
+    class Config:
+        from_attributes = True
+
+# Schemas para a entidade Aluno
 class AlunoBase(BaseModel):
+    # --- Informações Pessoais ---
     nome: str
-    data_nascimento: str
-    sexo: str
+    data_nascimento: date
+    rg: Optional[str] = None
     cpf: str
-    naturalidade: str
-    cor_raca: str
-    endereco: str
-    turma_id: int
-    # Responsável
+    certidao_nascimento: Optional[str] = None
+    
+    # --- Informações do Responsável ---
     nome_responsavel: Optional[str] = None
     parentesco_responsavel: Optional[str] = None
+    rg_responsavel: Optional[str] = None
     cpf_responsavel: Optional[str] = None
-    telefone_responsavel: Optional[str] = None
-    email_responsavel: Optional[str] = None
-    # Informações adicionais
-    necessidades_especiais: Optional[str] = None
-    alergias: Optional[str] = None
-    tipo_sanguineo: Optional[str] = None
-    # Uploads (armazenar caminho do arquivo)
-    documento_crianca: Optional[str] = None
-    documento_responsavel: Optional[str] = None
+    
+    # --- Informações Escolares ---
+    escola: Optional[str] = None
+    serie: Optional[str] = None
+    turno: Optional[str] = None
+
+    # --- Informações de Saúde e Aprendizagem ---
+    nivel_leitura_escrita: Optional[str] = None
+    quadro_cronico_saude: Optional[bool] = False
+    quadro_cronico: Optional[str] = None
+    
+    apresenta_transtorno_psicologico: Optional[bool] = False
+    transtorno_psicologico: Optional[str] = None
+
+    possui_deficiencia_transtorno_aprendizagem: Optional[bool] = False
+    deficiencia_transtorno_aprendizagem: Optional[str] = None
+
+    possui_acompanhamento_especializado: Optional[bool] = False
+    acompanhamento_especializado: Optional[str] = None
+
+    # --- Informações de Medicação ---
+    pode_tomar_medicacao: Optional[bool] = False
+    descricao_medicacao: Optional[str] = None
+    dosagem_medicacao: Optional[str] = None
 
 class AlunoCreate(AlunoBase):
     pass
 
+class AlunoUpdate(AlunoBase):
+    pass
+
 class AlunoOut(AlunoBase):
     id: int
+    documentos: List[DocumentoOut] = []
     class Config:
-        orm_mode = True
+        from_attributes = True
