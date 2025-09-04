@@ -1,4 +1,3 @@
-# Arquivo: /app/api/v1/aluno.py
 from fastapi import APIRouter, Depends, HTTPException, status, Query, UploadFile, File
 from sqlalchemy.orm import Session
 from typing import List
@@ -15,6 +14,8 @@ from crud.aluno import (
     deletar_aluno,
     criar_documento
 )
+# Importando as funções de manipulação de turma
+from crud.turma import remover_aluno_da_turma
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from core.security import decode_access_token
 from models.aluno import Aluno, Documento
@@ -73,18 +74,14 @@ def upload_documento_route(
     if not db_aluno:
         raise HTTPException(status_code=404, detail="Aluno não encontrado")
     
-    # Cria o caminho para salvar o arquivo.
-    # Usar o ID do aluno e o nome original do arquivo ajuda a organizar e evitar colisões.
     file_path = os.path.join(UPLOAD_DIR, f"{aluno_id}_{file.filename}")
     
     try:
-        # Salva o arquivo no sistema de arquivos do servidor
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Erro ao salvar o arquivo: {e}")
     
-    # Cria a entrada no banco de dados, associando o documento ao aluno
     documento_data = DocumentoBase(
         nome_arquivo=file.filename,
         caminho_arquivo=file_path
@@ -92,7 +89,6 @@ def upload_documento_route(
     
     db_documento = criar_documento(db, aluno_id, documento_data)
     return db_documento
-
 
 @router.get("/", response_model=List[AlunoOut])
 def listar_alunos_route(db: Session = Depends(get_db), skip: int = Query(0, ge=0), limit: int = Query(100, le=100)):
@@ -135,3 +131,18 @@ def deletar_aluno_route(aluno_id: int, db: Session = Depends(get_db), _ = Depend
     if not success:
         raise HTTPException(status_code=404, detail="Aluno não encontrado")
     return None
+
+@router.delete("/{aluno_id}/turma", status_code=status.HTTP_200_OK)
+def remover_aluno_da_turma_route(
+    aluno_id: int,
+    db: Session = Depends(get_db),
+    _ = Depends(coordenador_required)
+):
+    """
+    Remove a associação de um aluno com sua turma.
+    """
+    result = remover_aluno_da_turma(db, aluno_id)
+    if "error" in result:
+        raise HTTPException(status_code=result[1], detail=result[0])
+    
+    return {"message": f"Aluno com ID {aluno_id} removido da turma com sucesso."}

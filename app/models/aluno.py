@@ -46,10 +46,17 @@ class Aluno(Base):
     pode_tomar_medicacao = Column(Boolean, default=False)
     descricao_medicacao = Column(String, nullable=True)
     dosagem_medicacao = Column(String, nullable=True)
+
+     # Adicionando a chave estrangeira para a Turma
+    turma_id = Column(Integer, ForeignKey("turmas.id"), nullable=True)
+
+    # Relação de volta para a turma
+    turma = relationship("Turma", back_populates="alunos")
     
     # --- Upload de Documentos ---
     documentos = relationship("Documento", back_populates="aluno", cascade="all, delete-orphan")
 
+    turma = relationship("Turma", back_populates="alunos")
 
 class Documento(Base):
     """

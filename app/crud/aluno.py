@@ -5,13 +5,13 @@ from typing import List, Optional
 
 def get_aluno(db: Session, aluno_id: int):
     """
-    Busca um aluno pelo ID, incluindo seus documentos.
+    Busca um aluno pelo ID, incluindo seus documentos e turma.
     """
     return db.query(Aluno).filter(Aluno.id == aluno_id).first()
 
 def get_aluno_by_cpf(db: Session, aluno_cpf: str):
     """
-    Busca um aluno pelo CPF, incluindo seus documentos.
+    Busca um aluno pelo CPF, incluindo seus documentos e turma.
     """
     return db.query(Aluno).filter(Aluno.cpf == aluno_cpf).first()
 
@@ -23,10 +23,11 @@ def get_alunos(db: Session, skip: int = 0, limit: int = 100) -> List[Aluno]:
 
 def criar_aluno(db: Session, aluno: AlunoCreate):
     """
-    Cria um novo aluno no banco de dados.
+    Cria um novo aluno no banco de dados, incluindo a associação com a turma.
     """
-    # A lógica de documentos é removida daqui, pois será tratada em outra função
-    db_aluno = Aluno(**aluno.model_dump())
+    aluno_data = aluno.model_dump(exclude_unset=True)
+    db_aluno = Aluno(**aluno_data)
+
     db.add(db_aluno)
     db.commit()
     db.refresh(db_aluno)
@@ -44,13 +45,13 @@ def criar_documento(db: Session, aluno_id: int, documento: DocumentoBase):
 
 def atualizar_aluno(db: Session, aluno_id: int, aluno_update: AlunoUpdate):
     """
-    Atualiza as informações de um aluno existente.
-    Este método lida apenas com os campos do Aluno e não com a lista de Documentos.
+    Atualiza as informações de um aluno existente, incluindo a associação com a turma.
     """
     db_aluno = get_aluno(db, aluno_id)
     if db_aluno:
-        # Apenas atualiza os campos que foram enviados
-        for key, value in aluno_update.model_dump(exclude_unset=True).items():
+        # Apenas atualiza os campos que foram enviados no objeto AlunoUpdate
+        update_data = aluno_update.model_dump(exclude_unset=True)
+        for key, value in update_data.items():
             setattr(db_aluno, key, value)
             
         db.commit()
