@@ -17,14 +17,14 @@ services:
 
   db:
     image: postgres:15
-    container_name: db
+    container_name: db-irl
     restart: always
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 12345
       POSTGRES_DB: educa_db
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:

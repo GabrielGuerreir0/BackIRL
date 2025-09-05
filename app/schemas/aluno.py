@@ -2,8 +2,13 @@ from pydantic import BaseModel, ConfigDict
 from typing import Optional, List
 from datetime import date
 
-# Não importa TurmaOut aqui para evitar a importação circular.
-# Importaremos no final do arquivo.
+# Schema simples para turma (sem referência circular)
+class TurmaSimple(BaseModel):
+    id: int
+    nome: str
+    
+    class Config:
+        from_attributes = True
 
 # Schemas para a entidade Documento
 class DocumentoBase(BaseModel):
@@ -65,15 +70,9 @@ class AlunoUpdate(AlunoBase):
 
 class AlunoOut(AlunoBase):
     id: int
-    # Use 'DocumentoOut' e 'TurmaOut' como strings
-    documentos: List['DocumentoOut'] = []
-    turma: Optional['TurmaOut'] = None 
+    # Use TurmaSimple em vez de TurmaOut para evitar referência circular
+    turma: Optional[TurmaSimple] = None 
+    documentos: List[DocumentoOut] = []
     
     class Config:
         from_attributes = True
-
-# Importe os schemas após a definição de AlunoOut para que model_rebuild possa encontrá-los
-from .turma import TurmaOut
-
-# Chame model_rebuild para resolver as referências circulares
-AlunoOut.model_rebuild()
