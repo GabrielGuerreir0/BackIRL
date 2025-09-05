@@ -50,3 +50,8 @@ def deletar_educador(db: Session, educador_id: int):
     db.delete(educador)
     db.commit()
     return True
+def get_educador(db: Session, educador_id: int):
+    """
+    Busca e retorna um educador pelo seu ID.
+    """
+    return db.query(Educador).filter(Educador.id == educador_id).first()
