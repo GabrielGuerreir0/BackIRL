@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List
 import shutil
 import os
+from fastapi.responses import FileResponse 
 
 from db.session import SessionLocal
 from schemas.aluno import AlunoCreate, AlunoUpdate, AlunoOut, DocumentoOut, DocumentoBase
@@ -13,6 +14,7 @@ from crud.aluno import (
     atualizar_aluno,
     deletar_aluno,
     criar_documento,
+    get_documento
 )
 
 from crud.turma import remover_aluno_da_turma
@@ -136,3 +138,26 @@ def remover_aluno_de_sua_turma_route(
         raise HTTPException(status_code=404, detail="Aluno não encontrado.")
     
     return aluno_atualizado
+
+@router.get("/documentos/{documento_id}/download")
+def download_documento_route(
+    documento_id: int,
+    db: Session = Depends(get_db),
+    _ = Depends(coordenador_required)
+):
+   
+    db_documento = get_documento(db, documento_id)
+    if not db_documento:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Registro de documento não encontrado.")
+    
+    # 2. Verifica se o arquivo físico realmente existe no caminho salvo
+    caminho_arquivo = db_documento.caminho_arquivo
+    if not os.path.exists(caminho_arquivo):
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Arquivo não encontrado no servidor. Contate o administrador.")
+
+    # 3. Retorna o arquivo como uma resposta de download
+    return FileResponse(
+        path=caminho_arquivo,
+        media_type='application/octet-stream', # Um tipo genérico para downloads
+        filename=db_documento.nome_arquivo   # O nome original que o arquivo terá ao ser baixado
+    )

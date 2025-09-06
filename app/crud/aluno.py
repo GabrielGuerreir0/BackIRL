@@ -78,3 +78,7 @@ def deletar_documento(db: Session, documento_id: int):
         db.commit()
         return True
     return False
+
+def get_documento(db: Session, documento_id: int):
+    
+    return db.query(Documento).filter(Documento.id == documento_id).first()
