@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Body
 from sqlalchemy.orm import Session
 from db.session import SessionLocal
-from schemas.educador import EducadorCreate, EducadorOut
+from schemas.educador import EducadorCreate, EducadorOut, EducadorUpdate
 from crud import educador as crud_educador
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import JWTError
@@ -29,36 +29,50 @@ def coordenador_required(credentials: HTTPAuthorizationCredentials = Depends(bea
         )
     return payload  # retorna o payload decodificado se precisar usar na rota
 
-@router.post("/", response_model=EducadorOut)
-def criar_educador(
+@router.post("/", response_model=EducadorOut, status_code=status.HTTP_201_CREATED)
+def criar_educador_route(
     educador: EducadorCreate,
     db: Session = Depends(get_db),
-    _: dict = Depends(coordenador_required)
+    _ = Depends(coordenador_required)
 ):
+    db_educador = crud_educador.get_educador_by_email(db, email=educador.email)
+    if db_educador:
+        raise HTTPException(status_code=400, detail="E-mail já cadastrado.")
     return crud_educador.criar_educador(db, educador)
 
+
 @router.get("/", response_model=List[EducadorOut])
-def listar_educadores(
+def listar_educadores_route(
     db: Session = Depends(get_db),
-    _: dict = Depends(coordenador_required)
+    _ = Depends(coordenador_required)
 ):
     return crud_educador.listar_educadores(db)
 
 @router.get("/by_email/{email}", response_model=EducadorOut)
-def get_educador_by_email(email: str, db: Session = Depends(get_db)):
-    educador = db.query(crud_educador.Educador).filter(crud_educador.Educador.email == email).first()
+def get_educador_by_email_route(email: str, db: Session = Depends(get_db)):
+    educador = crud_educador.get_educador_by_email(db, email=email)
+    if not educador:
+        raise HTTPException(status_code=404, detail="Educador não encontrado")
+    return educador
+
+@router.get("/{educador_id}", response_model=EducadorOut)
+def get_educador_route(
+    educador_id: int, 
+    db: Session = Depends(get_db)
+):
+    educador = crud_educador.get_educador(db, educador_id)
     if not educador:
         raise HTTPException(status_code=404, detail="Educador não encontrado")
     return educador
 
 @router.put("/{educador_id}", response_model=EducadorOut)
-def atualizar_educador(
+def atualizar_educador_route(
     educador_id: int,
-    dados: dict = Body(...),
+    educador_update: EducadorUpdate,
     db: Session = Depends(get_db),
-    _: dict = Depends(coordenador_required)
+    _ = Depends(coordenador_required)
 ):
-    educador = crud_educador.atualizar_educador(db, educador_id, dados)
+    educador = crud_educador.atualizar_educador(db, educador_id, educador_update)
     if not educador:
         raise HTTPException(status_code=404, detail="Educador não encontrado")
     return educador

@@ -56,8 +56,6 @@ class Aluno(Base):
     # --- Upload de Documentos ---
     documentos = relationship("Documento", back_populates="aluno", cascade="all, delete-orphan")
 
-    turma = relationship("Turma", back_populates="alunos")
-
 class Documento(Base):
     """
     Entidade para armazenar informações sobre documentos PDF associados a um aluno.

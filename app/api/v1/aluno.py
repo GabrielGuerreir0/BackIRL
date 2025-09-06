@@ -12,9 +12,9 @@ from crud.aluno import (
     get_alunos,
     atualizar_aluno,
     deletar_aluno,
-    criar_documento
+    criar_documento,
 )
-# Importando as funções de manipulação de turma
+
 from crud.turma import remover_aluno_da_turma
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from core.security import decode_access_token
@@ -51,11 +51,7 @@ def criar_aluno_route(
     db: Session = Depends(get_db),
     _ = Depends(coordenador_required)
 ):
-    """
-    Cria um novo aluno no banco de dados.
-    Esta rota aceita um corpo de requisição JSON com os dados do aluno.
-    Os documentos devem ser enviados separadamente para a rota de upload.
-    """
+    
     db_aluno = criar_aluno(db=db, aluno=aluno_data)
     return db_aluno
 
@@ -66,10 +62,6 @@ def upload_documento_route(
     db: Session = Depends(get_db),
     _ = Depends(coordenador_required)
 ):
-    """
-    Faz o upload de um documento e o associa a um aluno existente.
-    """
-    # Verifica se o aluno existe
     db_aluno = get_aluno(db, aluno_id)
     if not db_aluno:
         raise HTTPException(status_code=404, detail="Aluno não encontrado")
@@ -132,17 +124,15 @@ def deletar_aluno_route(aluno_id: int, db: Session = Depends(get_db), _ = Depend
         raise HTTPException(status_code=404, detail="Aluno não encontrado")
     return None
 
-@router.delete("/{aluno_id}/turma", status_code=status.HTTP_200_OK)
-def remover_aluno_da_turma_route(
+@router.delete("/{aluno_id}/turma", status_code=status.HTTP_200_OK, response_model=AlunoOut)
+def remover_aluno_de_sua_turma_route(
     aluno_id: int,
     db: Session = Depends(get_db),
     _ = Depends(coordenador_required)
 ):
-    """
-    Remove a associação de um aluno com sua turma.
-    """
-    result = remover_aluno_da_turma(db, aluno_id)
-    if "error" in result:
-        raise HTTPException(status_code=result[1], detail=result[0])
+    aluno_atualizado = remover_aluno_da_turma(db, aluno_id=aluno_id)
     
-    return {"message": f"Aluno com ID {aluno_id} removido da turma com sucesso."}
+    if not aluno_atualizado:
+        raise HTTPException(status_code=404, detail="Aluno não encontrado.")
+    
+    return aluno_atualizado

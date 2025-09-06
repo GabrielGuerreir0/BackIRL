@@ -9,8 +9,10 @@ class Educador(Base):
     nome = Column(String, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
     telefone = Column(String, nullable=False)
-    turma_responsavel = Column(String, nullable=False)
-    cpf = Column(String, unique=True, nullable=False)
     data_nascimento = Column(String, nullable=False)
     hashed_password = Column(String, nullable=False)
+    
+    turmas = relationship("Turma", back_populates="educador")
+
+    # A relação com planejamentos permanece a mesma
     planejamentos = relationship("Planejamento", back_populates="educador", cascade="all, delete-orphan")

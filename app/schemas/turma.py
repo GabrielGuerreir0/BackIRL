@@ -1,29 +1,31 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, EmailStr
 from typing import Optional, List
 
-# Não importa AlunoOut aqui, use uma referência de string
-# from .aluno import AlunoOut 
+from .aluno import AlunoOut 
+
+class EducadorSimpleOut(BaseModel):
+    id: int
+    nome: str
+    email: EmailStr
+
+    class Config:
+        from_attributes = True
 
 class TurmaBase(BaseModel):
     nome: str
-    educador_id: Optional[int] = None
+    educador_id: int 
 
 class TurmaCreate(TurmaBase):
     pass
 
-class TurmaUpdate(TurmaBase):
-    pass
+class TurmaUpdate(BaseModel):
+    nome: Optional[str] = None
+    educador_id: Optional[int] = None
 
-class TurmaOut(TurmaBase):
+class TurmaOut(BaseModel):
     id: int
-    # Use 'AlunoOut' como uma string para referenciar a classe
-    alunos: List['AlunoOut'] = []
-    
+    nome: str
+    educador: EducadorSimpleOut
+    alunos: List[AlunoOut] = []
     class Config:
         from_attributes = True
-
-# Importe AlunoOut após a definição de TurmaOut para que model_rebuild possa encontrá-la
-from .aluno import AlunoOut 
-
-# Chame model_rebuild para resolver a referência circular
-TurmaOut.model_rebuild()

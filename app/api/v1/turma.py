@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from db.session import SessionLocal
 from schemas.turma import TurmaCreate, TurmaOut, TurmaUpdate
+from schemas.aluno import AlunoOut
 from crud import turma as crud_turma
 from crud import educador as crud_educador
 from typing import List
@@ -38,14 +39,20 @@ def criar_turma_route(
     db: Session = Depends(get_db),
     _ = Depends(coordenador_required)
 ):
-    # Verifica se o educador existe apenas se educador_id for fornecido
-    if turma.educador_id:
-        educador = crud_educador.get_educador(db, turma.educador_id)
-        if not educador:
-            raise HTTPException(status_code=404, detail="Educador responsável não encontrado")
+    # LÓGICA SIMPLIFICADA: O schema já exige o educador_id.
+    # A verificação 'if turma.educador_id:' foi removida por ser redundante.
+    educador = crud_educador.get_educador(db, turma.educador_id)
+    if not educador:
+        raise HTTPException(status_code=404, detail=f"Educador com ID {turma.educador_id} não encontrado.")
     
+    # Adicionar verificação para nome de turma duplicado
+    db_turma_existente = db.query(Turma).filter(Turma.nome == turma.nome).first()
+    if db_turma_existente:
+        raise HTTPException(status_code=400, detail="Já existe uma turma com este nome.")
+
     db_turma = crud_turma.criar_turma(db, turma)
     return db_turma
+
 
 
 
@@ -55,9 +62,6 @@ def listar_turmas_route(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, le=100)
 ):
-    """
-    Retorna uma lista de todas as turmas, com paginação.
-    """
     turmas = crud_turma.listar_turmas(db, skip=skip, limit=limit)
     return turmas
 
@@ -68,9 +72,6 @@ def get_turma_route(
     turma_id: int,
     db: Session = Depends(get_db)
 ):
-    """
-    Retorna as informações de uma turma específica pelo seu ID.
-    """
     turma = crud_turma.get_turma(db, turma_id)
     if turma is None:
         raise HTTPException(status_code=404, detail="Turma não encontrada")
@@ -100,30 +101,25 @@ def excluir_turma_route(
     db: Session = Depends(get_db),
     _ = Depends(coordenador_required)
 ):
-    """
-    Exclui uma turma do banco de dados pelo seu ID.
-    """
     result = crud_turma.excluir_turma(db, turma_id)
     if result is None:
         raise HTTPException(status_code=404, detail="Turma não encontrada")
-    # Retorna None para um status 204
     return None
 
 
-@router.post("/{turma_id}/alunos/{aluno_id}", response_model=TurmaOut, status_code=status.HTTP_200_OK)
+@router.post("/{turma_id}/alunos/{aluno_id}", response_model=AlunoOut) # MELHORIA: Retorna o aluno atualizado
 def adicionar_aluno_a_turma_route(
     turma_id: int,
     aluno_id: int,
     db: Session = Depends(get_db),
     _ = Depends(coordenador_required)
 ):
-    """
-    Adiciona um aluno a uma turma.
-    """
-    turma_com_aluno = crud_turma.adicionar_aluno_a_turma(db, turma_id, aluno_id)
-    if "error" in turma_com_aluno:
-        raise HTTPException(status_code=turma_com_aluno[1], detail=turma_com_aluno[0])
-    return turma_com_aluno
+    aluno_atualizado = crud_turma.adicionar_aluno_a_turma(db, turma_id=turma_id, aluno_id=aluno_id)
+    
+    if not aluno_atualizado:
+         raise HTTPException(status_code=404, detail="Turma ou Aluno não encontrado.")
+
+    return aluno_atualizado
 
 
 
@@ -134,20 +130,9 @@ def remover_aluno_da_turma_route(
     db: Session = Depends(get_db),
     _ = Depends(coordenador_required)
 ):
-    """
-    Remove um aluno de uma turma.
-    """
-    turma = crud_turma.get_turma(db, turma_id)
-    if not turma:
-        raise HTTPException(status_code=404, detail="Turma não encontrada")
+    sucesso = crud_turma.remover_aluno_da_turma(db, turma_id=turma_id, aluno_id=aluno_id)
     
-    aluno = db.query(Aluno).filter(Aluno.id == aluno_id).first()
-    if not aluno:
-        raise HTTPException(status_code=404, detail="Aluno não encontrado")
-    
-    if aluno.turma_id != turma_id:
-        raise HTTPException(status_code=400, detail="Aluno não pertence a esta turma.")
+    if not sucesso:
+        raise HTTPException(status_code=404, detail="Aluno não encontrado ou não pertence a esta turma.")
         
-    result = crud_turma.remover_aluno_da_turma(db, aluno_id)
-    
-    return {"message": f"Aluno com ID {aluno_id} removido da turma {turma_id} com sucesso."}
+    return {"message": f"Aluno removido da turma com sucesso."}

@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from models.educador import Educador
 from schemas.educador import EducadorCreate, EducadorOut
 from core.security import hash_password, verify_password
@@ -9,8 +9,6 @@ def criar_educador(db: Session, educador: EducadorCreate):
         nome=educador.nome,
         email=educador.email,
         telefone=educador.telefone,
-        turma_responsavel=educador.turma_responsavel,
-        cpf=educador.cpf,
         data_nascimento=educador.data_nascimento,
         hashed_password=hashed_pw
     )
@@ -20,7 +18,7 @@ def criar_educador(db: Session, educador: EducadorCreate):
     return db_educador
 
 def listar_educadores(db: Session):
-    return db.query(Educador).all()
+    return db.query(Educador).options(joinedload(Educador.turmas)).all()
 
 def autenticar_educador(db: Session, email: str, password: str):
     educador = db.query(Educador).filter(Educador.email == email).first()
@@ -51,7 +49,7 @@ def deletar_educador(db: Session, educador_id: int):
     db.commit()
     return True
 def get_educador(db: Session, educador_id: int):
-    """
-    Busca e retorna um educador pelo seu ID.
-    """
-    return db.query(Educador).filter(Educador.id == educador_id).first()
+    return db.query(Educador).options(joinedload(Educador.turmas)).filter(Educador.id == educador_id).first()
+
+def get_educador_by_email(db: Session, email: str):
+    return db.query(Educador).options(joinedload(Educador.turmas)).filter(Educador.email == email).first()

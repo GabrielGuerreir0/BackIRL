@@ -1,25 +1,22 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from models.aluno import Aluno, Documento
 from schemas.aluno import AlunoCreate, AlunoUpdate, DocumentoBase
-from typing import List, Optional
+from typing import List
 
 def get_aluno(db: Session, aluno_id: int):
-    """
-    Busca um aluno pelo ID, incluindo seus documentos e turma.
-    """
-    return db.query(Aluno).filter(Aluno.id == aluno_id).first()
+    return db.query(Aluno)\
+             .options(joinedload(Aluno.turma), joinedload(Aluno.documentos))\
+             .filter(Aluno.id == aluno_id).first()
 
 def get_aluno_by_cpf(db: Session, aluno_cpf: str):
-    """
-    Busca um aluno pelo CPF, incluindo seus documentos e turma.
-    """
-    return db.query(Aluno).filter(Aluno.cpf == aluno_cpf).first()
+    return db.query(Aluno)\
+             .options(joinedload(Aluno.turma), joinedload(Aluno.documentos))\
+             .filter(Aluno.cpf == aluno_cpf).first()
 
 def get_alunos(db: Session, skip: int = 0, limit: int = 100) -> List[Aluno]:
-    """
-    Retorna uma lista de todos os alunos, com paginação.
-    """
-    return db.query(Aluno).offset(skip).limit(limit).all()
+    return db.query(Aluno)\
+             .options(joinedload(Aluno.turma), joinedload(Aluno.documentos))\
+             .offset(skip).limit(limit).all()
 
 def criar_aluno(db: Session, aluno: AlunoCreate):
     """

@@ -15,18 +15,15 @@ def criar_turma(db: Session, turma: TurmaCreate):
     return db_turma
 
 def get_turma(db: Session, turma_id: int):
-    """
-    Busca uma turma pelo ID, incluindo a lista de alunos associados.
-    """
-    # Usando joinedload para carregar os alunos em uma única consulta
-    return db.query(Turma).options(joinedload(Turma.alunos)).filter(Turma.id == turma_id).first()
+    return db.query(Turma)\
+             .options(joinedload(Turma.alunos), joinedload(Turma.educador))\
+             .filter(Turma.id == turma_id).first()
 
 def listar_turmas(db: Session, skip: int = 0, limit: int = 100) -> List[Turma]:
-    """
-    Retorna uma lista de todas as turmas com paginação.
-    """
-    # Usando joinedload para carregar os alunos em uma única consulta por otimização
-    return db.query(Turma).options(joinedload(Turma.alunos)).offset(skip).limit(limit).all()
+    return db.query(Turma)\
+             .options(joinedload(Turma.alunos), joinedload(Turma.educador))\
+             .offset(skip).limit(limit).all()
+
 
 def atualizar_turma(db: Session, turma_id: int, turma_update: TurmaUpdate):
     """

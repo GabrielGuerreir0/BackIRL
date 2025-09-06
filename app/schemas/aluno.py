@@ -3,7 +3,7 @@ from typing import Optional, List
 from datetime import date
 
 # Schema simples para turma (sem referência circular)
-class TurmaSimple(BaseModel):
+class TurmaSimpleOut(BaseModel):
     id: int
     nome: str
     
@@ -70,8 +70,7 @@ class AlunoUpdate(AlunoBase):
 
 class AlunoOut(AlunoBase):
     id: int
-    # Use TurmaSimple em vez de TurmaOut para evitar referência circular
-    turma: Optional[TurmaSimple] = None 
+    turma: Optional[TurmaSimpleOut] = None 
     documentos: List[DocumentoOut] = []
     
     class Config:
