@@ -52,7 +52,9 @@ class Aluno(Base):
 
     # Relação de volta para a turma
     turma = relationship("Turma", back_populates="alunos")
-    
+
+    frequencias = relationship("RegistroFrequencia", back_populates="aluno")
+
     # --- Upload de Documentos ---
     documentos = relationship("Documento", back_populates="aluno", cascade="all, delete-orphan")
 

@@ -9,3 +9,4 @@ email-validator
 psycopg2-binary
 python-jose[cryptography]
 python-multipart
+pydantic-settings

@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session, joinedload
 from models.educador import Educador
-from schemas.educador import EducadorCreate, EducadorOut
+from schemas.educador import EducadorCreate, EducadorOut, EducadorUpdate
 from core.security import hash_password, verify_password
 
 def criar_educador(db: Session, educador: EducadorCreate):
@@ -28,18 +28,42 @@ def autenticar_educador(db: Session, email: str, password: str):
         return None
     return educador
 
-def atualizar_educador(db: Session, educador_id: int, dados: dict):
-    educador = db.query(Educador).filter(Educador.id == educador_id).first()
-    if not educador:
+def atualizar_educador(db: Session, educador_id: int, educador_update: EducadorUpdate):
+    """
+    Atualiza um educador no banco de dados.
+
+    Args:
+        db (Session): A sessão do banco de dados.
+        educador_id (int): O ID do educador a ser atualizado.
+        educador_update (EducadorUpdateSchema): O objeto Pydantic com os dados para atualização.
+
+    Returns:
+        Educador: O objeto educador atualizado ou None se não for encontrado.
+    """
+    # 1. Busca o objeto no banco de dados
+    db_educador = db.query(Educador).filter(Educador.id == educador_id).first()
+    
+    if not db_educador:
         return None
-    for key, value in dados.items():
-        if key == 'password':
-            setattr(educador, 'hashed_password', hash_password(value))
-        elif hasattr(educador, key):
-            setattr(educador, key, value)
+
+    # 2. Converte o modelo Pydantic em um dicionário
+    #    'exclude_unset=True' garante que apenas os campos enviados na requisição serão atualizados
+    update_data = educador_update.model_dump(exclude_unset=True)
+
+    # 3. Itera sobre os dados e atualiza o objeto do banco
+    for key, value in update_data.items():
+        # Trata o campo de senha de forma especial para aplicar o hash
+        if key == 'password' and value:
+            setattr(db_educador, 'hashed_password', hash_password(value))
+        else:
+            # Define o atributo no objeto do banco de dados
+            setattr(db_educador, key, value)
+    
+    # 4. Salva as alterações e atualiza a instância
     db.commit()
-    db.refresh(educador)
-    return educador
+    db.refresh(db_educador)
+    
+    return db_educador
 
 def deletar_educador(db: Session, educador_id: int):
     educador = db.query(Educador).filter(Educador.id == educador_id).first()

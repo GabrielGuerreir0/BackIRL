@@ -11,3 +11,5 @@ class Turma(Base):
     educador = relationship("Educador", back_populates="turmas")
     
     alunos = relationship("Aluno", back_populates="turma")
+
+    frequencias = relationship("RegistroFrequencia", back_populates="turma")
