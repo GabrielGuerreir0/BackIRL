@@ -1,5 +1,6 @@
 from pydantic import BaseModel, EmailStr
 from typing import List, Optional
+from pydantic import BaseModel, ConfigDict
 
 
 class TurmaSimpleOut(BaseModel):
@@ -25,12 +26,18 @@ class EducadorUpdate(BaseModel):
     data_nascimento: Optional[str] = None
     password: Optional[str] = None
 
+
+
 class EducadorOut(EducadorBase):
     id: int
-    turmas: List[TurmaSimpleOut] = []
+    turmas: Optional[TurmaSimpleOut] = []
 
     class Config:
         orm_mode = True
+
+class EducadorNameOut(EducadorBase):
+    id: int
+    nome: str
 
 class EducadorLogin(BaseModel):
     username: EmailStr

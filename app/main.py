@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from api.v1 import coordenador, educador, aluno, turma, dashboard, planejamento, assistente_social, login, RegistroFrequencia
+from api.v1 import coordenador, educador, aluno, turma, dashboard, planejamento, assistente_social, login, RegistroFrequencia, relatorios
 from db.session import engine
 from db.base import Base
 from fastapi.middleware.cors import CORSMiddleware
@@ -28,3 +28,4 @@ app.include_router(planejamento.router, prefix="/api/v1/planejamentos", tags=["P
 app.include_router(assistente_social.router, prefix="/api/v1/assistente", tags=["Assistente Social"])
 app.include_router(login.router, prefix="/api/v1/login", tags=["Login"])
 app.include_router(RegistroFrequencia.router, prefix="/api/v1", tags=["Frequencia"])
+app.include_router(relatorios.router, prefix="/api/v1/relatorio", tags=["Relatorio"])

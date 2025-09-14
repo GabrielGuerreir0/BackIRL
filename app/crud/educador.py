@@ -18,7 +18,7 @@ def criar_educador(db: Session, educador: EducadorCreate):
     return db_educador
 
 def listar_educadores(db: Session):
-    return db.query(Educador).options(joinedload(Educador.turmas)).all()
+    return db.query(Educador).options(joinedload(Educador.turma)).all()
 
 def autenticar_educador(db: Session, email: str, password: str):
     educador = db.query(Educador).filter(Educador.email == email).first()
@@ -73,7 +73,7 @@ def deletar_educador(db: Session, educador_id: int):
     db.commit()
     return True
 def get_educador(db: Session, educador_id: int):
-    return db.query(Educador).options(joinedload(Educador.turmas)).filter(Educador.id == educador_id).first()
+    return db.query(Educador).options(joinedload(Educador.turma)).filter(Educador.id == educador_id).first()
 
 def get_educador_by_email(db: Session, email: str):
-    return db.query(Educador).options(joinedload(Educador.turmas)).filter(Educador.email == email).first()
+    return db.query(Educador).options(joinedload(Educador.turma)).filter(Educador.email == email).first()

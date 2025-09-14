@@ -30,15 +30,6 @@ def get_historico_frequencia_by_aluno(db: Session, aluno_id: int) -> List[Regist
 def get_frequencia_by_aluno_and_dia(db: Session, aluno_id: int, data: date) -> Optional[RegistroFrequencia]:
     return db.query(RegistroFrequencia).filter(RegistroFrequencia.aluno_id == aluno_id, RegistroFrequencia.data == data).first()
 
-""" def get_historico_completo_da_turma(db: Session, turma_id: int):
-    turma = db.query(Turma).filter(Turma.id == turma_id).first()
-    if not turma: return None
-    registros = db.query(RegistroFrequencia).join(Aluno).filter(RegistroFrequencia.turma_id == turma_id).order_by(RegistroFrequencia.data.desc()).all()
-    registros_por_data = defaultdict(list)
-    for reg in registros:
-        registros_por_data[reg.data].append({"aluno_id": reg.aluno.id, "nome_completo": reg.aluno.nome, "status": reg.status.value})
-    return {"turma_nome": turma.nome, "registros": [{"data": data, "frequencias": freqs} for data, freqs in registros_por_data.items()]}
- """
 def get_historico_completo_por_turma(db: Session, turma_id: int) -> List[RegistroFrequencia]:
     return db.query(RegistroFrequencia)\
         .join(Aluno)\

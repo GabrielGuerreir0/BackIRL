@@ -6,10 +6,12 @@ class Turma(Base):
     __tablename__ = "turmas"
     id = Column(Integer, primary_key=True, index=True)
     nome = Column(String, nullable=False, unique=True)
-    educador_id = Column(Integer, ForeignKey('educadores.id'), nullable=False)
+    educador_id = Column(Integer, ForeignKey('educadores.id'), nullable=False, unique=True)
 
-    educador = relationship("Educador", back_populates="turmas")
+    educador = relationship("Educador", back_populates="turma")
     
     alunos = relationship("Aluno", back_populates="turma")
+
+    relatorios = relationship("Relatorio", back_populates="turma", cascade="all, delete-orphan")
 
     frequencias = relationship("RegistroFrequencia", back_populates="turma")

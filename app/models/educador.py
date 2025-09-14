@@ -12,7 +12,9 @@ class Educador(Base):
     data_nascimento = Column(String, nullable=False)
     hashed_password = Column(String, nullable=False)
     
-    turmas = relationship("Turma", back_populates="educador")
+    turma = relationship("Turma", back_populates="educador", uselist=False)
 
-    # A relação com planejamentos permanece a mesma
+
     planejamentos = relationship("Planejamento", back_populates="educador", cascade="all, delete-orphan")
+
+    relatorios = relationship("Relatorio", back_populates="educador", cascade="all, delete-orphan")

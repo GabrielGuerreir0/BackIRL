@@ -3,7 +3,6 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from core.security import decode_access_token
 from sqlalchemy.orm import Session
 from db.session import SessionLocal
-""" from api.deps import verificar_se_e_educador_da_turma """
 from typing import List
 from datetime import date
 import crud.RegistroFrequencia as crud_frequencia

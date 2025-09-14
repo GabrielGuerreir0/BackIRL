@@ -1,6 +1,5 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, ConfigDict
 from typing import Optional, List
-
 from .aluno import AlunoOut 
 
 class EducadorSimpleOut(BaseModel):
@@ -21,6 +20,11 @@ class TurmaCreate(TurmaBase):
 class TurmaUpdate(BaseModel):
     nome: Optional[str] = None
     educador_id: Optional[int] = None
+
+class TurmaNameOut(BaseModel):
+    id: int
+    nome: str
+
 
 class TurmaOut(BaseModel):
     id: int
