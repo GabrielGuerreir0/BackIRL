@@ -9,13 +9,13 @@ from schemas.assistente_social import AssistenteCreate, AssistenteUpdate
 from core.security import hash_password
 
 # --- Funções de Leitura (Read) ---
+# Adicione esta função ao seu CRUD de assistente
 
 def get_assistente(db: Session, assistente_id: int) -> Assistente | None:
     """Busca um único assistente social pelo seu ID."""
     return db.query(Assistente).filter(Assistente.id == assistente_id).first()
 
 def get_assistente_by_email(db: Session, email: str) -> Assistente | None:
-    """Busca um único assistente social pelo seu email."""
     return db.query(Assistente).filter(Assistente.email == email).first()
 
 def get_assistentes(db: Session, skip: int = 0, limit: int = 100) -> List[Assistente]:

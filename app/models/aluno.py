@@ -55,6 +55,8 @@ class Aluno(Base):
 
     frequencias = relationship("RegistroFrequencia", back_populates="aluno")
 
+    relatorios_assistente = relationship("RelatorioAssistente", back_populates="aluno", cascade="all, delete-orphan")
+
     # --- Upload de Documentos ---
     documentos = relationship("Documento", back_populates="aluno", cascade="all, delete-orphan")
 
