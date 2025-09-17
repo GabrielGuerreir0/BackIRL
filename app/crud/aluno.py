@@ -5,18 +5,31 @@ from typing import List
 
 def get_aluno(db: Session, aluno_id: int):
     return db.query(Aluno)\
-             .options(joinedload(Aluno.turma), joinedload(Aluno.documentos))\
-             .filter(Aluno.id == aluno_id).first()
+           .options(
+               joinedload(Aluno.turma), 
+               joinedload(Aluno.documentos),
+               joinedload(Aluno.frequencias)  # <<< ALTERADO AQUI
+           )\
+           .filter(Aluno.id == aluno_id).first()
 
 def get_aluno_by_cpf(db: Session, aluno_cpf: str):
     return db.query(Aluno)\
-             .options(joinedload(Aluno.turma), joinedload(Aluno.documentos))\
-             .filter(Aluno.cpf == aluno_cpf).first()
+           .options(
+               joinedload(Aluno.turma), 
+               joinedload(Aluno.documentos),
+               joinedload(Aluno.frequencias)  # <<< ALTERADO AQUI
+           )\
+           .filter(Aluno.cpf == aluno_cpf).first()
 
 def get_alunos(db: Session, skip: int = 0, limit: int = 100) -> List[Aluno]:
     return db.query(Aluno)\
-             .options(joinedload(Aluno.turma), joinedload(Aluno.documentos))\
-             .offset(skip).limit(limit).all()
+           .options(
+               joinedload(Aluno.turma), 
+               joinedload(Aluno.documentos),
+               joinedload(Aluno.frequencias)  # <<< ALTERADO AQUI
+           )\
+           .offset(skip).limit(limit).all()
+
 
 def criar_aluno(db: Session, aluno: AlunoCreate):
     """
@@ -28,6 +41,8 @@ def criar_aluno(db: Session, aluno: AlunoCreate):
     db.add(db_aluno)
     db.commit()
     db.refresh(db_aluno)
+
+    db_aluno.frequencias = []
     return db_aluno
 
 def criar_documento(db: Session, aluno_id: int, documento: DocumentoBase):

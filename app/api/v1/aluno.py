@@ -6,7 +6,7 @@ import os
 from fastapi.responses import FileResponse 
 
 from db.session import SessionLocal
-from schemas.aluno import AlunoCreate, AlunoUpdate, AlunoOut, DocumentoOut, DocumentoBase
+from schemas.aluno import AlunoCreate, AlunoUpdate, AlunoOut, DocumentoOut, DocumentoBase, AlunoComSituacaoOut
 from crud.aluno import (
     criar_aluno,
     get_aluno,
@@ -84,14 +84,14 @@ def upload_documento_route(
     db_documento = criar_documento(db, aluno_id, documento_data)
     return db_documento
 
-@router.get("/", response_model=List[AlunoOut])
+@router.get("/", response_model=List[AlunoComSituacaoOut])
 def listar_alunos_route(db: Session = Depends(get_db), skip: int = Query(0, ge=0), limit: int = Query(100, le=100)):
     """
     Retorna uma lista de todos os alunos cadastrados.
     """
     return get_alunos(db=db, skip=skip, limit=limit)
 
-@router.get("/{aluno_id}", response_model=AlunoOut)
+@router.get("/{aluno_id}", response_model=AlunoComSituacaoOut)
 def get_aluno_route(aluno_id: int, db: Session = Depends(get_db)):
     """
     Retorna as informações de um aluno específico pelo seu ID.
