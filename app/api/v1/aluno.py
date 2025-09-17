@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query, UploadFile, File
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List,Optional
+from core.enums import EnumSituacao
 import shutil
 import os
 from fastapi.responses import FileResponse 
@@ -85,11 +86,27 @@ def upload_documento_route(
     return db_documento
 
 @router.get("/", response_model=List[AlunoComSituacaoOut])
-def listar_alunos_route(db: Session = Depends(get_db), skip: int = Query(0, ge=0), limit: int = Query(100, le=100)):
+def listar_alunos_route(
+    db: Session = Depends(get_db), 
+    skip: int = Query(0, ge=0), 
+    limit: int = Query(100, le=100),
+    search: Optional[str] = Query(None, description="Filtrar alunos por nome"),
+    turma_id: Optional[int] = Query(None, description="Filtrar alunos por ID da turma"),
+    situacao: Optional[EnumSituacao] = Query(None, description="Filtrar alunos pela situação de frequência")
+):
     """
-    Retorna uma lista de todos os alunos cadastrados.
+    Retorna uma lista de todos os alunos cadastrados, com filtros opcionais.
     """
-    return get_alunos(db=db, skip=skip, limit=limit)
+    # A rota simplesmente chama a função do CRUD, passando os filtros
+    alunos = get_alunos(
+        db=db, 
+        skip=skip, 
+        limit=limit,
+        search=search,
+        turma_id=turma_id,
+        situacao=situacao
+    )
+    return alunos
 
 @router.get("/{aluno_id}", response_model=AlunoComSituacaoOut)
 def get_aluno_route(aluno_id: int, db: Session = Depends(get_db)):

@@ -105,5 +105,5 @@ class AlunoComSituacaoOut(AlunoOut):
             return "Satisfatório"
         elif 25 < percentual < 50:
             return "Atenção"
-        else: # percentual >= 50
+        else: 
             return "Insatisfatório"
