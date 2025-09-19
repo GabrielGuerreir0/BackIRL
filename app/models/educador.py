@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, ForeignKey
 from db.base import Base
 from sqlalchemy.orm import relationship
 
@@ -12,7 +12,11 @@ class Educador(Base):
     data_nascimento = Column(String, nullable=False)
     hashed_password = Column(String, nullable=False)
     
-    turma = relationship("Turma", back_populates="educador", uselist=False)
+    turma = relationship(
+        "Turma",
+        back_populates="educador",
+        uselist=False
+    )
 
 
     planejamentos = relationship("Planejamento", back_populates="educador", cascade="all, delete-orphan")

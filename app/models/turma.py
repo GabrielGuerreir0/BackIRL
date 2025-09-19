@@ -8,7 +8,11 @@ class Turma(Base):
     nome = Column(String, nullable=False, unique=True)
     educador_id = Column(Integer, ForeignKey('educadores.id'), nullable=False, unique=True)
 
-    educador = relationship("Educador", back_populates="turma")
+    educador = relationship(
+        "Educador",
+        back_populates="turma",
+        uselist=False
+    )
     
     alunos = relationship("Aluno", back_populates="turma")
 

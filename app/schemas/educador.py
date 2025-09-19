@@ -30,10 +30,9 @@ class EducadorUpdate(BaseModel):
 
 class EducadorOut(EducadorBase):
     id: int
-    turmas: Optional[TurmaSimpleOut] = []
+    turma: Optional[TurmaSimpleOut] = None
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 class EducadorNameOut(EducadorBase):
     id: int

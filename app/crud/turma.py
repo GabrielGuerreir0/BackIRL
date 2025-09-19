@@ -1,6 +1,8 @@
 from sqlalchemy.orm import Session, joinedload
+from sqlalchemy import update
 from models.turma import Turma
 from models.aluno import Aluno
+from models.educador import Educador
 from schemas.turma import TurmaCreate, TurmaUpdate
 from typing import List, Optional
 
@@ -8,6 +10,11 @@ def criar_turma(db: Session, turma: TurmaCreate):
     """
     Cria uma nova turma no banco de dados.
     """
+    # Verifica se o educador já está associado a outra turma
+    educador_existente = db.query(Turma).filter(Turma.educador_id == turma.educador_id).first()
+    if educador_existente:
+        raise ValueError("Este educador já está associado a outra turma.")
+    
     db_turma = Turma(**turma.model_dump())
     db.add(db_turma)
     db.commit()

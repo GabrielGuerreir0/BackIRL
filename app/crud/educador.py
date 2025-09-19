@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session, joinedload
 from models.educador import Educador
 from schemas.educador import EducadorCreate, EducadorOut, EducadorUpdate
 from core.security import hash_password, verify_password
+from fastapi import HTTPException
 
 def criar_educador(db: Session, educador: EducadorCreate):
     hashed_pw = hash_password(educador.password)
@@ -18,7 +19,18 @@ def criar_educador(db: Session, educador: EducadorCreate):
     return db_educador
 
 def listar_educadores(db: Session):
-    return db.query(Educador).options(joinedload(Educador.turma)).all()
+    """
+    Lista todos os educadores com suas turmas associadas.
+    """
+    educadores = db.query(Educador).options(
+        joinedload(Educador.turma)
+    ).all()
+    
+    # Força o carregamento da turma para cada educador
+    for educador in educadores:
+        _ = educador.turma  # Isso força o carregamento do relacionamento
+    
+    return educadores
 
 def autenticar_educador(db: Session, email: str, password: str):
     educador = db.query(Educador).filter(Educador.email == email).first()
@@ -27,6 +39,26 @@ def autenticar_educador(db: Session, email: str, password: str):
     if not verify_password(password, educador.hashed_password):
         return None
     return educador
+
+def verificar_disponibilidade_educador(db: Session, educador_id: int) -> bool:
+    """
+    Verifica se um educador já está associado a alguma turma.
+    
+    Args:
+        db (Session): A sessão do banco de dados.
+        educador_id (int): O ID do educador a ser verificado.
+    
+    Returns:
+        bool: True se o educador está disponível, False caso contrário.
+    """
+    educador = db.query(Educador).options(
+        joinedload(Educador.turma)
+    ).filter(Educador.id == educador_id).first()
+    
+    if not educador:
+        raise HTTPException(status_code=404, detail="Educador não encontrado")
+    
+    return educador.turma is None
 
 def atualizar_educador(db: Session, educador_id: int, educador_update: EducadorUpdate):
     """
