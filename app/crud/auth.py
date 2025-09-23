@@ -4,10 +4,10 @@ from sqlalchemy.orm import Session
 from typing import Tuple, Optional, Union
 from models.educador import Educador
 from models.coordenador import Coordenador
-from models.assistente_social import Assistente
+from models.assistente_social import AssistenteSocial
 from core.security import verify_password
 
-UserModel = Union[Educador, Coordenador, Assistente]
+UserModel = Union[Educador, Coordenador, AssistenteSocial]
 
 def authenticate_user(db: Session, email: str, password: str) -> Tuple[Optional[UserModel], Optional[str]]:
     # Tenta como Educador
@@ -21,8 +21,8 @@ def authenticate_user(db: Session, email: str, password: str) -> Tuple[Optional[
         return coordenador, "coordenador"
         
     # Tenta como Assistente
-    assistente = db.query(Assistente).filter(Assistente.email == email).first()
+    assistente = db.query(AssistenteSocial).filter(AssistenteSocial.email == email).first()
     if assistente and verify_password(password, assistente.hashed_password):
-        return assistente, "assistente_social"
+        return assistente, "assistente"
 
     return None, None

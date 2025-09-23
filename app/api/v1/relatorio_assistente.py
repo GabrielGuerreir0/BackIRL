@@ -11,7 +11,7 @@ from db.session import get_db
 from schemas.relatorio_assistente import RelatorioCreate, RelatorioUpdate, RelatorioOut
 from crud import relatorio_assistente as crud_relatorio
 from crud import assistente_social as crud_assistente
-from models.assistente_social import Assistente
+from models.assistente_social import AssistenteSocial
 
 bearer_scheme = HTTPBearer()
 
@@ -35,7 +35,7 @@ def coordenador_or_assistente_required(credentials: HTTPAuthorizationCredentials
 def get_current_assistente_from_db(
     credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
     db: Session = Depends(get_db)
-) -> Assistente:
+) -> AssistenteSocial:
  
     token = credentials.credentials
     payload = decode_access_token(token)
@@ -66,7 +66,7 @@ router = APIRouter()
 def criar_novo_relatorio(
     relatorio: RelatorioCreate,
     db: Session = Depends(get_db),
-    current_assistente: Assistente = Depends(get_current_assistente_from_db)
+    current_assistente: AssistenteSocial = Depends(get_current_assistente_from_db)
 ):
     try:
         db_relatorio = crud_relatorio.criar_relatorio(
@@ -131,7 +131,7 @@ def atualizar_um_relatorio(
     relatorio_update: RelatorioUpdate,
     db: Session = Depends(get_db),
     # ✅ Usamos a dependência que busca o assistente no banco
-    current_assistente: Assistente = Depends(get_current_assistente_from_db)
+    current_assistente: AssistenteSocial = Depends(get_current_assistente_from_db)
 ):
     """Atualiza um relatório. Somente o autor, que deve ser um assistente."""
     db_relatorio = crud_relatorio.get_relatorio(db, relatorio_id=relatorio_id)
@@ -149,7 +149,7 @@ def deletar_um_relatorio(
     relatorio_id: int,
     db: Session = Depends(get_db),
     # ✅ Usamos a dependência que busca o assistente no banco
-    current_assistente: Assistente = Depends(get_current_assistente_from_db)
+    current_assistente: AssistenteSocial = Depends(get_current_assistente_from_db)
 ):
     """Deleta um relatório. Somente o autor, que deve ser um assistente."""
     db_relatorio = crud_relatorio.get_relatorio(db, relatorio_id=relatorio_id)

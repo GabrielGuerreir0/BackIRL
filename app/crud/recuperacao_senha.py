@@ -6,7 +6,7 @@ from fastapi import HTTPException
 from services.email import enviar_email_recuperacao
 from models.educador import Educador
 from models.coordenador import Coordenador
-from models.assistente_social import Assistente
+from models.assistente_social import AssistenteSocial
 from core.security import hash_password
 
 def gerar_codigo_recuperacao(length: int = 6) -> str:
@@ -22,7 +22,7 @@ async def iniciar_recuperacao_senha(db: Session, email: str):
     roles = [
         (Educador, "Educador"),
         (Coordenador, "Coordenador"),
-        (Assistente, "Assistente Social")
+        (AssistenteSocial, "Assistente Social")
     ]
     
     for model_class, role_name in roles:
@@ -52,7 +52,7 @@ def validar_codigo(db: Session, email: str, codigo: str):
     roles = [
         (Educador, "Educador"),
         (Coordenador, "Coordenador"),
-        (Assistente, "Assistente Social")
+        (AssistenteSocial, "Assistente Social")
     ]
     
     for model_class, _ in roles:

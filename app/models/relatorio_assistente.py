@@ -13,6 +13,6 @@ class RelatorioAssistente(Base):
     assistente_id = Column(Integer, ForeignKey('assistentes.id'), nullable=False)
     aluno_id = Column(Integer, ForeignKey('alunos.id'), nullable=False)
 
-    assistente = relationship("Assistente", back_populates="relatorios")
+    assistente = relationship("AssistenteSocial", back_populates="relatorios")
 
     aluno = relationship("Aluno", back_populates="relatorios_assistente")
