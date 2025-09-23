@@ -45,3 +45,15 @@ class EducadorLogin(BaseModel):
 class TokenEducador(BaseModel):
     access_token: str
     token_type: str = "bearer"
+
+class SolicitarRecuperacaoSenha(BaseModel):
+    email: EmailStr
+
+class ValidarCodigoRecuperacao(BaseModel):
+    email: EmailStr
+    codigo: str
+
+class RedefinirSenha(BaseModel):
+    email: EmailStr
+    codigo: str
+    nova_senha: str

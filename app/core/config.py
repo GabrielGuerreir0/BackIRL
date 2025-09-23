@@ -10,6 +10,13 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 # O token expira em 1 hora
     REFRESH_TOKEN_EXPIRE_DAYS: int = 30 # O refresh token expira em 30 dias
 
+    # Configurações de Email
+    SMTP_HOST: str = "smtp.gmail.com"  # Exemplo para Gmail
+    SMTP_PORT: int = 587
+    SMTP_USER: str = "seu_email@gmail.com"
+    SMTP_PASSWORD: str = "sua_senha_de_app"
+    SMTP_FROM: str = "seu_email@gmail.com"
+
     class Config:
         env_file = ".env"
 

@@ -3,6 +3,9 @@ from models.educador import Educador
 from schemas.educador import EducadorCreate, EducadorOut, EducadorUpdate
 from core.security import hash_password, verify_password
 from fastapi import HTTPException
+import random
+import string
+from datetime import datetime, timedelta
 
 def criar_educador(db: Session, educador: EducadorCreate):
     hashed_pw = hash_password(educador.password)
@@ -59,6 +62,33 @@ def verificar_disponibilidade_educador(db: Session, educador_id: int) -> bool:
         raise HTTPException(status_code=404, detail="Educador não encontrado")
     
     return educador.turma is None
+
+
+    
+    if educador.codigo_recuperacao_expiracao < datetime.now():
+        raise HTTPException(status_code=400, detail="Código de recuperação expirado")
+    
+    if educador.codigo_recuperacao != codigo:
+        raise HTTPException(status_code=400, detail="Código de recuperação inválido")
+    
+    return True
+
+def redefinir_senha(db: Session, email: str, codigo: str, nova_senha: str) -> bool:
+    """
+    Redefine a senha do educador após validar o código de recuperação.
+    """
+    # Primeiro valida o código
+    validar_codigo_recuperacao(db, email, codigo)
+    
+    # Se chegou aqui, o código é válido
+    educador = db.query(Educador).filter(Educador.email == email).first()
+    educador.hashed_password = hash_password(nova_senha)
+    # Limpa os campos de recuperação
+    educador.codigo_recuperacao = None
+    educador.codigo_recuperacao_expiracao = None
+    
+    db.commit()
+    return True
 
 def atualizar_educador(db: Session, educador_id: int, educador_update: EducadorUpdate):
     """

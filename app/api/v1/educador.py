@@ -1,7 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Body
 from sqlalchemy.orm import Session
 from db.session import SessionLocal
-from schemas.educador import EducadorCreate, EducadorOut, EducadorUpdate
+from schemas.educador import (
+    EducadorCreate, EducadorOut, EducadorUpdate
+)
 from crud import educador as crud_educador
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import JWTError
@@ -47,6 +49,8 @@ def listar_educadores_route(
     _ = Depends(coordenador_required)
 ):
     return crud_educador.listar_educadores(db)
+
+
 
 @router.get("/by_email/{email}", response_model=EducadorOut)
 def get_educador_by_email_route(email: str, db: Session = Depends(get_db)):

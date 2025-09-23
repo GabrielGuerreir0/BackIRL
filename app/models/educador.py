@@ -1,6 +1,7 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
 from db.base import Base
 from sqlalchemy.orm import relationship
+from datetime import datetime
 
 class Educador(Base):
     __tablename__ = "educadores"
@@ -11,6 +12,8 @@ class Educador(Base):
     telefone = Column(String, nullable=False)
     data_nascimento = Column(String, nullable=False)
     hashed_password = Column(String, nullable=False)
+    codigo_recuperacao = Column(String, nullable=True)
+    codigo_recuperacao_expiracao = Column(DateTime, nullable=True)
     
     turma = relationship(
         "Turma",
