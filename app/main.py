@@ -15,9 +15,16 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI(title="Sistema Educacional")
 
 
+# Lista de origens permitidas
+origins = [
+    "http://localhost:5173",  # Mantenha as de localhost para facilitar o desenvolvimento futuro
+    "https://eduirl.site",      # <-- A ORIGEM QUE FALTAVA
+    "https://www.eduirl.site",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000", "http://localhost:5174", "http://localhost:8080", "http://localhost:4200", "http://localhost", "https://www.eduirl.site"],  
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
