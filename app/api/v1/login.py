@@ -2,9 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from db.session import get_db
 from core.security import create_access_token, verify_password
-from api.v1.coordenador import crud_coordenador
-from api.v1.educador import crud_educador
-from api.v1.assistente_social import crud_assistente
+from models.coordenador import Coordenador
+from models.assistente_social import AssistenteSocial
+from crud import educador as crud_educador
 from schemas.login import LoginSchema
 
 router = APIRouter()
@@ -26,7 +26,7 @@ def login(
         }
 
     # 🔹 2. Se não for educador, tenta como Coordenador
-    user = db.query(crud_coordenador.Coordenador).filter_by(email=form_data.email).first()
+    user = db.query(Coordenador).filter(Coordenador.email == form_data.email).first()
     if user and verify_password(form_data.password, user.hashed_password):
         role = "coordenador"
         access_token = create_access_token({"sub": user.email, "role": role})
@@ -36,7 +36,7 @@ def login(
             "role": role
         }
 
-    user = db.query(crud_assistente.Assistente).filter_by(email=form_data.email).first()
+    user = db.query(AssistenteSocial).filter(AssistenteSocial.email == form_data.email).first()
     if user and verify_password(form_data.password, user.hashed_password):
         role = "assistente"
         access_token = create_access_token({"sub": user.email, "role": role})
