@@ -20,7 +20,8 @@ def user_required(credentials: HTTPAuthorizationCredentials = Depends(bearer_sch
             detail="Apenas pessoas autenticadas podem acessar esta rota."
         )
     user_role = payload.get("role")
-    allowed_roles = ["educador", "coordenador", "assistente_social"]
+    # Aceita tanto "assistente" (como emitido no token atual) quanto "assistente_social" (compatibilidade)
+    allowed_roles = ["educador", "coordenador", "assistente", "assistente_social"]
     if user_role not in allowed_roles:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
