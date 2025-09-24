@@ -53,7 +53,7 @@ class Aluno(Base):
     # Relação de volta para a turma
     turma = relationship("Turma", back_populates="alunos")
 
-    frequencias = relationship("RegistroFrequencia", back_populates="aluno")
+    frequencias = relationship("RegistroFrequencia", back_populates="aluno", cascade="all, delete-orphan")
 
     relatorios_assistente = relationship("RelatorioAssistente", back_populates="aluno", cascade="all, delete-orphan")
 
